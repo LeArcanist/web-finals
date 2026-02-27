@@ -131,8 +131,8 @@ STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-MEDIA_URL = '/media'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media/'
 
 ASGI_APPLICATION = 'elearning.asgi.application'
 
