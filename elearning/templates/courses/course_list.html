@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Available Courses</h2>
+    {% for course in courses %}
+    <div class="card">
+        <h3>
+            <a href="{% url 'course_detail' course.id %}">
+                {{ course.title }}
+            </a>
+        </h3>
+
+        <p>Teacher: {{ course.teacher.username }}</p>
+
+        {% if course.id in enrolled_ids %}
+            <span class="badge">Enrolled</span>
+        {% else %}
+            {% if user.role == "STUDENT" %}
+                <form method="post" action="{% url 'enrol_course' course.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Enrol</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No courses yet.</p>
+    {% endfor %}
+{% endblock %}

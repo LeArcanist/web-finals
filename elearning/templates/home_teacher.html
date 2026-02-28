@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Teacher Home</h2>
+
+<p>Name: {{ user.real_name }}</p>
+<p>Role: {{ user.role }}</p>
+
+<h3>Courses You Teach</h3>
+<ul>
+    {% for course in courses %}
+        <li>{{ course.title }}</li>
+    {% empty %}
+        <li>No courses created yet.</li>
+    {% endfor %}
+</ul>
+
+<p><a href="{% url 'course_list' %}">Browse Courses</a></p>
+{% endblock %}

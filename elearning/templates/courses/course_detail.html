@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ course.title }}</h2>
+<p><b>Teacher:</b> {{ course.teacher.username }}</p>
+<p>{{ course.description }}</p>
+
+{% if enrollment %}
+  <p><b>Your status:</b> {{ enrollment.status }}</p>
+{% else %}
+  <p><b>Your status:</b> Not enrolled</p>
+
+  {% if user.role == "STUDENT" %}
+    <form method="post" action="{% url 'enrol_course' course.id %}">
+      {% csrf_token %}
+      <button type="submit">Enrol in this course</button>
+    </form>
+  {% endif %}
+{% endif %}
+
+<p><a href="{% url 'course_list' %}">Back to course list</a></p>
+{% endblock %}

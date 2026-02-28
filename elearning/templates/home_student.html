@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Student Home</h2>
+
+<p>Name: {{ user.real_name }}</p>
+<p>Role: {{ user.role }}</p>
+
+<h3>Enrolled Courses</h3>
+<ul>
+    {% for enrollment in enrollments %}
+        <li>{{ enrollment.course.title }} ({{ enrollment.status }})</li>
+    {% empty %}
+        <li>No courses enrolled.</li>
+    {% endfor %}
+</ul>
+
+<p><a href="{% url 'course_list' %}">Browse Courses</a></p>
+{% endblock %}
