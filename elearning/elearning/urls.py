@@ -17,7 +17,14 @@ urlpatterns = [
     path("home/student/", account_views.student_home, name="student_home"),
     path("home/teacher/", account_views.teacher_home, name="teacher_home"),
 
+    # courses list
     path("courses/", include("courses.urls")),
+
+    # registration page
+    path("register/", account_views.register, name="register"),
+
+    # search function
+    path("search/", account_views.teacher_search, name="teacher_search"),
 ]
 
 if settings.DEBUG:

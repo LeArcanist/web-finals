@@ -3,6 +3,11 @@
 {% block content %}
 <h2>Student Home</h2>
 
+{% if user.photo %}
+  <img src="{{ user.photo.url }}" alt="Profile photo" style="width:120px; height:120px; border-radius:12px; object-fit:cover;">
+{% else %}
+  <p class="badge">No photo uploaded</p>
+{% endif %}
 <p>Name: {{ user.real_name }}</p>
 <p>Role: {{ user.role }}</p>
 

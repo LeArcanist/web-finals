@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h2>Search</h2>
+
+  <form method="get" action="{% url 'teacher_search' %}">
+    <input type="text" name="q" placeholder="Search by username, name, or email" value="{{ q }}">
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+{% if q %}
+  <div class="card">
+    <h3>Teachers</h3>
+    <ul>
+      {% for u in teachers %}
+        <li>
+          <b>{{ u.username }}</b>
+          {% if u.real_name %} — {{ u.real_name }}{% endif %}
+          {% if u.photo %}<span class="badge">has photo</span>{% endif %}
+        </li>
+      {% empty %}
+        <li>No teachers found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Students</h3>
+    <ul>
+      {% for u in students %}
+        <li>
+          <b>{{ u.username }}</b>
+          {% if u.real_name %} — {{ u.real_name }}{% endif %}
+          {% if u.photo %}<span class="badge">has photo</span>{% endif %}
+        </li>
+      {% empty %}
+        <li>No students found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}
