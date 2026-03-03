@@ -82,3 +82,12 @@ class CourseFeedback(models.Model):
 
     def __str__(self):
         return f"{self.student.username} -> {self.course.title}"
+    
+class CourseChatMessage(models.Model):
+    course = models.ForeignKey("Course", on_delete=models.CASCADE, related_name="chat_messages")
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]

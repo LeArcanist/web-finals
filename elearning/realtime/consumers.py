@@ -5,7 +5,7 @@ from .models import DirectMessage
 from realtime.models import Notification
 
 from django.contrib.auth import get_user_model
-from courses.models import Course, Enrollment
+from courses.models import Course, Enrollment, CourseChatMessage
 
 class CourseChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -24,6 +24,8 @@ class CourseChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        history = await self.get_course_history(self.course_id, limit=30)
+        await self.send(text_data=json.dumps({"type": "history", "messages": history}))
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -34,6 +36,8 @@ class CourseChatConsumer(AsyncWebsocketConsumer):
         message = (data.get("message") or "").strip()
         if not message:
             return
+        
+        await self.save_course_message(self.course_id, user.id, message)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -67,6 +71,22 @@ class CourseChatConsumer(AsyncWebsocketConsumer):
             student_id=user_id,
             status=Enrollment.Status.ENROLLED,
         ).exists()
+    
+    @database_sync_to_async
+    def save_course_message(self, course_id: int, sender_id: int, msg: str):
+        CourseChatMessage.objects.create(
+            course_id=course_id,
+            sender_id=sender_id,
+            message=msg,
+        )
+
+    @database_sync_to_async
+    def get_course_history(self, course_id: int, limit: int = 30):
+        qs = CourseChatMessage.objects.filter(course_id=course_id).select_related("sender").order_by("-created_at")[:limit]
+        items = list(reversed(list(qs.values("sender__username", "message", "created_at"))))
+        for it in items:
+            it["created_at"] = it["created_at"].isoformat(sep=" ", timespec="seconds")
+        return items
     
 User = get_user_model()
 

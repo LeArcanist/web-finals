@@ -37,8 +37,17 @@
 
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    addLine(`${data.username}: ${data.message}`);
-  };
+
+    if (data.type === "history") {
+      log.innerHTML = "";
+      data.messages.forEach(m => {
+        addLine(`${m.sender__username}: ${m.message}`);
+      });
+      return;
+  }
+
+  addLine(`${data.username}: ${data.message}`);
+};
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
