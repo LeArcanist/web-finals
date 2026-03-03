@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Chat: {{ course.title }}</h2>
+  <p>Room: course_{{ course.id }}</p>
+</div>
+
+<div class="card" id="chatLog" style="height: 320px; overflow:auto;"></div>
+
+<div class="card">
+  <form id="chatForm">
+    <input id="chatInput" type="text" placeholder="Type a message..." autocomplete="off">
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+  const courseId = "{{ course.id }}";
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  const socketUrl = `${scheme}://${window.location.host}/ws/chat/course/${courseId}/`;
+  const socket = new WebSocket(socketUrl);
+
+  const log = document.getElementById("chatLog");
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("chatInput");
+
+  function addLine(text) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  socket.onopen = () => addLine("Connected.");
+  socket.onclose = () => addLine("Disconnected.");
+  socket.onerror = () => addLine("WebSocket error.");
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    addLine(`${data.username}: ${data.message}`);
+  };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const msg = input.value.trim();
+    if (!msg) return;
+    socket.send(JSON.stringify({ message: msg }));
+    input.value = "";
+  });
+</script>
+{% endblock %}

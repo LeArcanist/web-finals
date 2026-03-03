@@ -132,3 +132,15 @@ input, textarea, select {
   opacity: 0.6;
   margin-top: 4px;
 }
+
+.auth-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.auth-center .card {
+  width: 100%;
+  max-width: 420px;
+}

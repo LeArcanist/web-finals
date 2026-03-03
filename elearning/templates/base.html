@@ -13,11 +13,9 @@
     <div class="navbar">
       <a href="{% url 'home' %}">Home</a>
       <a href="{% url 'course_list' %}">Courses</a>
-
       {% if user.role == "TEACHER" %}
         <a href="{% url 'teacher_search' %}">Search</a>
       {% endif %}
-
       <form method="post" action="{% url 'logout' %}" style="display:inline;">
         {% csrf_token %}
         <button type="submit">Logout</button>
@@ -25,12 +23,18 @@
     </div>
   {% endif %}
 
-  <div class="layout">
-    <main class="main">
-      {% block content %}{% endblock %}
-    </main>
+  {% if user.is_authenticated %}
+    <div class="layout">
+      <main class="main">
+  {% else %}
+    <div class="auth-center">
+  {% endif %}
 
-    {% if user.is_authenticated %}
+        {% block content %}{% endblock %}
+
+  {% if user.is_authenticated %}
+      </main>
+
       <aside class="sidebar">
         <div class="card">
           <h3 style="margin-bottom:10px;">
@@ -56,8 +60,10 @@
           </ul>
         </div>
       </aside>
-    {% endif %}
-  </div>
+    </div>
+  {% else %}
+    </div>
+  {% endif %}
 
 </div>
 

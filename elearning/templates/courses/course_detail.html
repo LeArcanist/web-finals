@@ -2,8 +2,13 @@
 
 {% block content %}
 <h2>{{ course.title }}</h2>
-<p><b>Teacher:</b> {{ course.teacher.username }}</p>
+
+
+<div class="card" style="max-width:700px;">
+  <p><b>Teacher:</b> {{ course.teacher.username }}</p>
 <p>{{ course.description }}</p>
+<p><a href="{% url 'course_chat' course.id %}">Open Course Chat</a></p>
+</div>
 
 <div class="card">
   <h3>Course Materials</h3>

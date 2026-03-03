@@ -166,3 +166,22 @@ def teacher_course_manage(request, course_id: int):
         "course": course,
         "enrollments": enrollments,
     })
+
+@login_required
+def course_chat(request, course_id: int):
+    course = get_object_or_404(Course, pk=course_id)
+
+    # same access rules as websocket
+    if request.user.role == "TEACHER" and course.teacher_id == request.user.id:
+        allowed = True
+    else:
+        allowed = Enrollment.objects.filter(
+            course=course,
+            student=request.user,
+            status=Enrollment.Status.ENROLLED
+        ).exists()
+
+    if not allowed:
+        return HttpResponseForbidden("You do not have access to this chat.")
+
+    return render(request, "courses/course_chat.html", {"course": course})
