@@ -12,13 +12,18 @@
 <p>Role: {{ user.role }}</p>
 
 <h3>Courses You Teach</h3>
-<ul>
-    {% for course in courses %}
-        <li>{{ course.title }}</li>
-    {% empty %}
-        <li>No courses created yet.</li>
-    {% endfor %}
-</ul>
+
+{% for course in courses %}
+  <div class="card course-card">
+    <a href="{% url 'teacher_course_manage' course.id %}" class="course-card-link">
+      <h3 class="course-title">{{ course.title }}</h3>
+      <p class="course-desc">{{ course.description|truncatewords:20 }}</p>
+      <span class="badge">Manage Course</span>
+    </a>
+  </div>
+{% empty %}
+  <p>No courses created yet.</p>
+{% endfor %}
 
 <p><a href="{% url 'course_create' %}">+ Create a new course</a></p>
 

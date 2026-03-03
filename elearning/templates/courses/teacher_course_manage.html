@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h2>Manage: {{ course.title }}</h2>
+  <p><b>Teacher:</b> {{ course.teacher.username }}</p>
+
+  <p>
+    <a href="{% url 'course_detail' course.id %}">View course page</a> |
+    <a href="{% url 'home' %}">Back to home</a>
+  </p>
+</div>
+
+<div class="card">
+  <h3>Enrolled Students</h3>
+
+  <ul>
+    {% for e in enrollments %}
+      <li>
+        <b>{{ e.student.username }}</b>
+        {% if e.student.real_name %} — {{ e.student.real_name }}{% endif %}
+        <span class="badge">{{ e.status }}</span>
+      </li>
+    {% empty %}
+      <li>No students enrolled yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

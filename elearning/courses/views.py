@@ -146,3 +146,23 @@ def create_course(request):
         form = CourseForm()
 
     return render(request, "courses/course_create.html", {"form": form})
+
+@login_required
+def teacher_course_manage(request, course_id: int):
+    course = get_object_or_404(Course.objects.select_related("teacher"), pk=course_id)
+
+    # Only the teacher who owns this course can manage it
+    if not _is_teacher(request.user) or course.teacher_id != request.user.id:
+        return HttpResponseForbidden("Only the teacher of this course can view this page.")
+
+    enrollments = (
+        Enrollment.objects
+        .filter(course=course)
+        .select_related("student")
+        .order_by("student__username")
+    )
+
+    return render(request, "courses/teacher_course_manage.html", {
+        "course": course,
+        "enrollments": enrollments,
+    })
