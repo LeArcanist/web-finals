@@ -16,6 +16,7 @@
       {% if user.role == "TEACHER" %}
         <a href="{% url 'teacher_search' %}">Search</a>
       {% endif %}
+      <a href="{% url 'user_directory' %}">Users</a>
       <form method="post" action="{% url 'logout' %}" style="display:inline;">
         {% csrf_token %}
         <button type="submit">Logout</button>
@@ -60,6 +61,51 @@
           </ul>
         </div>
       </aside>
+
+      <script>
+        (function() {
+          const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+          const url = `${scheme}://${window.location.host}/ws/notifications/`;
+          const sock = new WebSocket(url);
+        
+          sock.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type !== "notification") return;
+        
+            const list = document.querySelector(".notif-list");
+            if (!list) return;
+        
+            // Update unread badge (simple increment)
+            const badge = document.querySelector(".sidebar .badge");
+            if (badge && badge.textContent.includes("unread")) {
+              const num = parseInt(badge.textContent) || 0;
+              badge.textContent = (num + 1) + " unread";
+            }
+        
+            const li = document.createElement("li");
+            li.className = "notif-item notif-unread";
+        
+            if (data.link) {
+              const a = document.createElement("a");
+              a.href = data.link;
+              a.textContent = data.message;
+              li.appendChild(a);
+            } else {
+              li.textContent = data.message;
+            }
+        
+            const time = document.createElement("div");
+            time.className = "notif-time";
+            time.textContent = "just now";
+            li.appendChild(time);
+        
+            // Insert at top
+            list.insertBefore(li, list.firstChild);
+          };
+        
+          sock.onerror = () => {};
+        })();
+        </script>
     </div>
   {% else %}
     </div>

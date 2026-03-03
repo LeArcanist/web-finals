@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm
 from django.contrib.auth import login
 from django.http import HttpResponseForbidden
 from django.db.models import Q
 from .models import User
+
 
 @login_required
 def home_router(request):
@@ -67,4 +68,30 @@ def teacher_search(request):
         "q": q,
         "students": students,
         "teachers": teachers,
+    })
+
+@login_required
+def dm_chat(request, user_id: int):
+    other = get_object_or_404(User, id=user_id)
+    return render(request, "accounts/dm_chat.html", {"other": other})
+
+@login_required
+def user_directory(request):
+    q = (request.GET.get("q") or "").strip()
+
+    users = User.objects.all().order_by("username")
+
+    if q:
+        users = users.filter(
+            Q(username__icontains=q) |
+            Q(real_name__icontains=q) |
+            Q(email__icontains=q)
+        ).order_by("username")
+
+    # Don’t show yourself in results
+    users = users.exclude(id=request.user.id)[:100]
+
+    return render(request, "accounts/user_directory.html", {
+        "q": q,
+        "users": users,
     })

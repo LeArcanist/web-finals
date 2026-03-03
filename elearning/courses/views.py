@@ -5,6 +5,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Course, Enrollment, CourseFeedback, CourseMaterial
 from .forms import CourseFeedbackForm, CourseForm, CourseMaterialForm
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+from realtime.models import Notification
+
 def _is_student(user) -> bool:
     return getattr(user, "role", None) == "STUDENT"
 
@@ -58,6 +63,33 @@ def course_detail(request, course_id: int):
                 m.course = course
                 m.uploaded_by = request.user
                 m.save()
+
+                students = Enrollment.objects.filter(
+                    course=course,
+                    status=Enrollment.Status.ENROLLED,
+                ).values_list("student_id", flat=True)
+
+                Notification.objects.bulk_create([
+                    Notification(
+                        recipient_id=sid,
+                        message=f"New material in {course.title}: {m.title}",
+                        link=f"/courses/{course.id}/",
+                    )
+                    for sid in students
+                ])
+
+                channel_layer = get_channel_layer()
+                for sid in students:
+                    async_to_sync(channel_layer.group_send)(
+                        f"user_{sid}",
+                        {
+                            "type": "notify",
+                            "message": f"New material in {course.title}: {m.title}",
+                            "link": f"/courses/{course.id}/",
+                            "created_at": "",
+                            "is_read": False,
+                        }
+                    )
                 return redirect("course_detail", course_id=course.id)
 
         # Student submits feedback

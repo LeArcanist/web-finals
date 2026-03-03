@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Chat with {{ other.username }}</h2>
+</div>
+
+<div class="card" id="chatLog" style="height: 340px; overflow:auto;"></div>
+
+<div class="card">
+  <form id="chatForm">
+    <input id="chatInput" type="text" placeholder="Type a message..." autocomplete="off">
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+  const otherUserId = "{{ other.id }}";
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  const socketUrl = `${scheme}://${window.location.host}/ws/dm/${otherUserId}/`;
+  const socket = new WebSocket(socketUrl);
+
+  const log = document.getElementById("chatLog");
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("chatInput");
+
+  function addLine(text, muted=false) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    if (muted) p.style.opacity = "0.7";
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  socket.onopen = () => addLine("Connected.", true);
+  socket.onclose = () => addLine("Disconnected.", true);
+  socket.onerror = () => addLine("WebSocket error.", true);
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === "history") {
+      log.innerHTML = "";
+      data.messages.forEach(m => {
+        const who = (parseInt(m.sender_id) === {{ user.id }}) ? "You" : "{{ other.username }}";
+        addLine(`${who}: ${m.message}`);
+      });
+      return;
+    }
+
+    if (data.type === "message") {
+      const who = (parseInt(data.sender_id) === {{ user.id }}) ? "You" : data.sender_username;
+      addLine(`${who}: ${data.message}`);
+    }
+  };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const msg = input.value.trim();
+    if (!msg) return;
+    socket.send(JSON.stringify({ message: msg }));
+    input.value = "";
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h2>User Directory</h2>
+
+  <form method="get" action="{% url 'user_directory' %}">
+    <input type="text" name="q" placeholder="Search username, name, email..." value="{{ q }}">
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Users</h3>
+  <ul style="list-style:none; padding-left:0;">
+    {% for u in users %}
+      <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div>
+          <b>{{ u.username }}</b>
+          {% if u.real_name %} — {{ u.real_name }}{% endif %}
+          <span class="badge">{{ u.role }}</span>
+        </div>
+
+        <div>
+          <a href="{% url 'dm_chat' u.id %}">
+            <button type="button">Message</button>
+          </a>
+        </div>
+      </li>
+    {% empty %}
+      <li>No users found.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

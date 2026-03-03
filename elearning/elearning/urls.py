@@ -25,6 +25,9 @@ urlpatterns = [
 
     # search function
     path("search/", account_views.teacher_search, name="teacher_search"),
+
+    path("dm/<int:user_id>/", account_views.dm_chat, name="dm_chat"),
+    path("users/", account_views.user_directory, name="user_directory"),
 ]
 
 if settings.DEBUG:

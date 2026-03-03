@@ -11,14 +11,21 @@
 <p>Name: {{ user.real_name }}</p>
 <p>Role: {{ user.role }}</p>
 
-<h3>Enrolled Courses</h3>
-<ul>
-    {% for enrollment in enrollments %}
-        <li>{{ enrollment.course.title }} ({{ enrollment.status }})</li>
-    {% empty %}
-        <li>No courses enrolled.</li>
-    {% endfor %}
-</ul>
+<h3>Your Courses</h3>
+{% for enrollment in enrollments %}
+  <div class="card course-card">
+    <a href="{% url 'course_detail' enrollment.course.id %}" class="course-card-link">
+      <div class="course-card-top">
+        <h3 class="course-title">{{ enrollment.course.title }}</h3>
+        <span class="badge">{{ enrollment.status }}</span>
+      </div>
+
+      <p class="course-desc">{{ enrollment.course.description|truncatewords:20 }}</p>
+    </a>
+  </div>
+{% empty %}
+  <p>You are not enrolled in any courses.</p>
+{% endfor %}
 
 <p><a href="{% url 'course_list' %}">Browse Courses</a></p>
 {% endblock %}
