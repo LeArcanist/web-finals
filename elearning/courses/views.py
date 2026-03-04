@@ -33,7 +33,20 @@ def course_detail(request, course_id: int):
     course = get_object_or_404(Course.objects.select_related("teacher"), pk=course_id)
 
     enrollment = Enrollment.objects.filter(course=course, student=request.user).first()
-    is_enrolled = enrollment is not None and enrollment.status == Enrollment.Status.ENROLLED
+    
+    is_teacher = course.teacher_id == request.user.id
+
+    is_enrolled = Enrollment.objects.filter(
+        course=course,
+        student=request.user,
+        status=Enrollment.Status.ENROLLED
+    ).exists()
+
+    can_view_materials = is_teacher or is_enrolled
+
+    materials = []
+    if can_view_materials:
+        materials = CourseMaterial.objects.filter(course=course)
 
     # Lists to display
     materials = CourseMaterial.objects.filter(course=course).order_by("-uploaded_at")

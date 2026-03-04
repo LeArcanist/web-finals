@@ -12,21 +12,18 @@
 
 <div class="card">
   <h3>Course Materials</h3>
-
-  {% if materials %}
+  {% if can_view_materials %}
     <ul>
       {% for m in materials %}
         <li>
-          <b>{{ m.title }}</b>
-          {% if m.description %}<br>{{ m.description }}{% endif %}
-          <br>
-          <a href="{{ m.file.url }}">Download</a>
-          <span class="badge">Uploaded {{ m.uploaded_at }}</span>
+          <a href="{{ m.file.url }}">{{ m.title }}</a>
         </li>
+      {% empty %}
+        <li>No materials uploaded yet.</li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>No materials uploaded yet.</p>
+    <p>You must be enrolled in this course to view materials.</p>
   {% endif %}
 </div>
 
