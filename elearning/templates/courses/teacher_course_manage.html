@@ -14,16 +14,51 @@
 <div class="card">
   <h3>Enrolled Students</h3>
 
-  <ul>
+  <ul class="student-list">
     {% for e in enrollments %}
-      <li>
-        <b>{{ e.student.username }}</b>
-        {% if e.student.real_name %} — {{ e.student.real_name }}{% endif %}
-        <span class="badge">{{ e.status }}</span>
+      {% if e.status == "ENROLLED" %}
+      <li class="student-row">
+        <div>
+          <b>{{ e.student.username }}</b>
+          {% if e.student.real_name %} — {{ e.student.real_name }}{% endif %}
+          <span class="badge">{{ e.status }}</span>
+        </div>
+
+        <form method="post" action="{% url 'remove_student' course.id e.student.id %}">
+          {% csrf_token %}
+          <button type="submit">Remove</button>
+        </form>
       </li>
-    {% empty %}
-      <li>No students enrolled yet.</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  {% if not enrollments %}
+  <p>No students enrolled yet.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Blocked Students</h3>
+
+  <ul class="student-list">
+    {% for e in enrollments %}
+      {% if e.status == "BLOCKED" %}
+      <li class="student-row">
+        <div>
+          <b>{{ e.student.username }}</b>
+          {% if e.student.real_name %} — {{ e.student.real_name }}{% endif %}
+          <span class="badge">{{ e.status }}</span>
+        </div>
+
+        <form method="post" action="{% url 'unblock_student' course.id e.student.id %}">
+          {% csrf_token %}
+          <button type="submit">Unblock</button>
+        </form>
+      </li>
+      {% endif %}
     {% endfor %}
   </ul>
 </div>
+
 {% endblock %}

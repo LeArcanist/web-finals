@@ -48,11 +48,9 @@ def course_detail(request, course_id: int):
     can_leave_feedback = False
     feedback_form = None
 
-    # Handle POST actions with a hidden "action" field
     if request.method == "POST":
         action = request.POST.get("action")
 
-        # Teacher uploads a material
         if action == "upload_material":
             if not is_course_teacher:
                 return HttpResponseForbidden("Only the teacher of this course can upload materials.")
@@ -92,7 +90,6 @@ def course_detail(request, course_id: int):
                     )
                 return redirect("course_detail", course_id=course.id)
 
-        # Student submits feedback
         elif action == "submit_feedback":
             if not (_is_student(request.user) and is_enrolled):
                 return HttpResponseForbidden("Only enrolled students can leave feedback.")
@@ -112,7 +109,6 @@ def course_detail(request, course_id: int):
         else:
             return HttpResponseForbidden("Invalid action.")
 
-    # If GET (or POST failed validation), build forms for display
     if is_course_teacher and material_form is None:
         material_form = CourseMaterialForm()
 
@@ -152,6 +148,12 @@ def enrol_course(request, course_id: int):
         student=request.user,
         defaults={"status": Enrollment.Status.ENROLLED},
     )
+
+    if enrollment.status == Enrollment.Status.BLOCKED:
+        return HttpResponseForbidden("You are blocked from this course.")
+
+    enrollment.status = Enrollment.Status.ENROLLED
+    enrollment.save()
 
     if not created and enrollment.status == Enrollment.Status.BLOCKED:
         return HttpResponseForbidden("You are blocked from this course.")
@@ -203,7 +205,6 @@ def teacher_course_manage(request, course_id: int):
 def course_chat(request, course_id: int):
     course = get_object_or_404(Course, pk=course_id)
 
-    # same access rules as websocket
     if request.user.role == "TEACHER" and course.teacher_id == request.user.id:
         allowed = True
     else:
@@ -217,3 +218,57 @@ def course_chat(request, course_id: int):
         return HttpResponseForbidden("You do not have access to this chat.")
 
     return render(request, "courses/course_chat.html", {"course": course})
+
+@login_required
+def remove_student(request, course_id: int, student_id: int):
+    if request.method != "POST":
+        return HttpResponseForbidden("POST only.")
+
+    course = get_object_or_404(Course, pk=course_id)
+
+    # Only the teacher who owns this course can remove
+    if not _is_teacher(request.user) or course.teacher_id != request.user.id:
+        return HttpResponseForbidden("Not allowed.")
+
+    enrollment = Enrollment.objects.filter(course_id=course_id, student_id=student_id).first()
+    if not enrollment:
+        return redirect("teacher_course_manage", course_id=course_id)
+
+    enrollment.status = Enrollment.Status.BLOCKED
+    enrollment.save()
+
+    # Create DB notification
+    note = Notification.objects.create(
+        recipient_id=student_id,
+        message=f"You were removed from {course.title}.",
+        link=f"/courses/{course.id}/",
+    )
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"user_{student_id}",
+        {
+            "type": "notify",
+            "message": note.message,
+            "link": note.link,
+            "created_at": "",
+            "is_read": False,
+        }
+    )
+
+    return redirect("teacher_course_manage", course_id=course_id)
+
+@login_required
+def unblock_student(request, course_id, student_id):
+    course = get_object_or_404(Course, pk=course_id)
+
+    if request.user.role != "TEACHER" or course.teacher_id != request.user.id:
+        return HttpResponseForbidden()
+
+    enrollment = Enrollment.objects.filter(course_id=course_id, student_id=student_id).first()
+
+    if enrollment:
+        enrollment.status = Enrollment.Status.ENROLLED
+        enrollment.save()
+
+    return redirect("teacher_course_manage", course_id=course_id)
