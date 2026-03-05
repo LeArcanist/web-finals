@@ -21,7 +21,14 @@ DEBUG = os.getenv("DEBUG") == "1"
 
 #ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+
+CSRF_TRUSTED_ORIGINS = (
+    os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
+)
+
+# ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -133,11 +140,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
-# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 if not DEBUG:
     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
