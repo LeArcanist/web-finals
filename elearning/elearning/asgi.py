@@ -12,6 +12,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'elearning.settings')
 
 django_asgi_app = get_asgi_application()
 
+import elearning.routing
+
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AuthMiddlewareStack(

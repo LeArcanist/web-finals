@@ -19,7 +19,6 @@ def home_router(request):
 
 @login_required
 def student_home(request):
-    # your existing enrollments
     enrollments = request.user.course_enrollments.select_related("course")
 
     # status posting
@@ -30,7 +29,7 @@ def student_home(request):
             s = form.save(commit=False)
             s.author = request.user
             s.save()
-            return redirect("home")  # <-- use your URL name here
+            return redirect("home")
 
     # show latest 20 of their own updates
     status_updates = StatusUpdate.objects.filter(author=request.user)[:20]
