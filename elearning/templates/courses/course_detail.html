@@ -3,7 +3,6 @@
 {% block content %}
 <h2>{{ course.title }}</h2>
 
-
 <div class="card" style="max-width:700px;">
   <p><b>Teacher:</b> {{ course.teacher.username }}</p>
 <p>{{ course.description }}</p>
@@ -12,16 +11,31 @@
 
 <div class="card">
   <h3>Course Materials</h3>
+
   {% if can_view_materials %}
-    <ul>
-      {% for m in materials %}
-        <li>
-          <a href="{{ m.file.url }}">{{ m.title }}</a>
-        </li>
-      {% empty %}
-        <li>No materials uploaded yet.</li>
-      {% endfor %}
-    </ul>
+
+    {% for m in materials %}
+      <div class="card material-card">
+        <div class="material-left">
+          <b>{{ m.title }}</b>
+          {% if m.description %}
+            <div class="material-desc">{{ m.description }}</div>
+          {% endif %}
+        </div>
+        <div class="material-right">
+          <a class="btn-link" href="{{ m.file.url }}" download>Download</a>
+          {% if is_course_teacher %}
+          <form method="post" action="{% url 'delete_material' m.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn-link btn-remove" type="submit">Remove</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p>No materials uploaded yet.</p>
+    {% endfor %}
+
   {% else %}
     <p>You must be enrolled in this course to view materials.</p>
   {% endif %}

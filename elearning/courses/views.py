@@ -33,8 +33,6 @@ def course_detail(request, course_id: int):
     course = get_object_or_404(Course.objects.select_related("teacher"), pk=course_id)
 
     enrollment = Enrollment.objects.filter(course=course, student=request.user).first()
-    
-    is_teacher = course.teacher_id == request.user.id
 
     is_enrolled = Enrollment.objects.filter(
         course=course,
@@ -42,19 +40,22 @@ def course_detail(request, course_id: int):
         status=Enrollment.Status.ENROLLED
     ).exists()
 
-    can_view_materials = is_teacher or is_enrolled
+        # --- Teacher upload logic ---
+    is_course_teacher = _is_teacher(request.user) and (course.teacher_id == request.user.id)
+    material_form = None
+
+    can_view_materials = is_course_teacher or is_enrolled
 
     materials = []
     if can_view_materials:
-        materials = CourseMaterial.objects.filter(course=course)
+        materials = (
+            CourseMaterial.objects.filter(course=course).order_by("-uploaded_at")
+            if can_view_materials
+            else CourseMaterial.objects.none()
+)
 
     # Lists to display
-    materials = CourseMaterial.objects.filter(course=course).order_by("-uploaded_at")
     feedback_list = CourseFeedback.objects.filter(course=course).select_related("student").order_by("-created_at")
-
-    # --- Teacher upload logic ---
-    is_course_teacher = _is_teacher(request.user) and (course.teacher_id == request.user.id)
-    material_form = None
 
     # --- Student feedback logic ---
     existing_feedback = None
@@ -134,6 +135,8 @@ def course_detail(request, course_id: int):
     return render(request, "courses/course_detail.html", {
         "course": course,
         "enrollment": enrollment,
+        
+        "can_view_materials": can_view_materials,
         "materials": materials,
 
         "is_course_teacher": is_course_teacher,
@@ -285,3 +288,17 @@ def unblock_student(request, course_id, student_id):
         enrollment.save()
 
     return redirect("teacher_course_manage", course_id=course_id)
+
+@login_required
+def delete_material(request, material_id):
+    material = get_object_or_404(CourseMaterial, pk=material_id)
+    course = material.course
+
+    # Only the teacher of the course can delete
+    if not (_is_teacher(request.user) and course.teacher_id == request.user.id):
+        return HttpResponseForbidden("Not allowed.")
+
+    if request.method == "POST":
+        material.delete()
+
+    return redirect("course_detail", course_id=course.id)

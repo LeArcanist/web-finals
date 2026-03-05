@@ -144,3 +144,51 @@ input, textarea, select {
   width: 100%;
   max-width: 420px;
 }
+
+
+.material-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.material-desc {
+  opacity: 0.8;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.btn-remove {
+  background: #e53e3e;
+  color: white;
+}
+
+.btn-remove:hover {
+  background: #c53030;
+}
+
+/* Make <a class="btn-link"> look like a button */
+a.btn-link {
+  display: inline-block;
+  background: #4fd1c5;
+  color: #121826;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+a.btn-link:hover {
+  background: #38b2ac;
+  text-decoration: none;
+}
+
+/* Optional: align Download + Remove nicely */
+.material-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
