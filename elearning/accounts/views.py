@@ -6,6 +6,9 @@ from django.http import HttpResponseForbidden
 from django.db.models import Q
 from .models import User
 
+from social.forms import StatusUpdateForm
+from social.models import StatusUpdate
+
 
 @login_required
 def home_router(request):
@@ -16,9 +19,26 @@ def home_router(request):
 
 @login_required
 def student_home(request):
+    # your existing enrollments
     enrollments = request.user.course_enrollments.select_related("course")
+
+    # status posting
+    form = StatusUpdateForm()
+    if request.method == "POST" and request.POST.get("action") == "post_status":
+        form = StatusUpdateForm(request.POST)
+        if form.is_valid():
+            s = form.save(commit=False)
+            s.author = request.user
+            s.save()
+            return redirect("home")  # <-- use your URL name here
+
+    # show latest 20 of their own updates
+    status_updates = StatusUpdate.objects.filter(author=request.user)[:20]
+
     return render(request, "home_student.html", {
         "enrollments": enrollments,
+        "status_form": form,
+        "status_updates": status_updates,
     })
 
 

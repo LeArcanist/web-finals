@@ -11,6 +11,30 @@
 <p>Name: {{ user.real_name }}</p>
 <p>Role: {{ user.role }}</p>
 
+<div class="card">
+  <h3>Status Update</h3>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="post_status">
+    {{ status_form.as_p }}
+    <button type="submit">Post</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Your Updates</h3>
+
+  {% for s in status_updates %}
+    <div class="card" style="margin-bottom:12px;">
+      <div style="opacity:0.7; font-size:12px;">{{ s.created_at }}</div>
+      <div>{{ s.content }}</div>
+    </div>
+  {% empty %}
+    <p>No updates yet.</p>
+  {% endfor %}
+</div>
+
 <h3>Your Courses</h3>
 {% for enrollment in enrollments %}
   <div class="card course-card">
