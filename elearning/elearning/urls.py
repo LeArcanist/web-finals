@@ -31,5 +31,4 @@ urlpatterns = [
     path("users/", account_views.user_directory, name="user_directory"),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
