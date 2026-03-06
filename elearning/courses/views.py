@@ -127,8 +127,12 @@ def course_detail(request, course_id: int):
         material_form = CourseMaterialForm()
 
     if _is_student(request.user) and is_enrolled:
-        existing_feedback = CourseFeedback.objects.filter(course=course, student=request.user).first()
+        existing_feedback = CourseFeedback.objects.filter(
+            course=course, student=request.user
+            ).first()
+        
         can_leave_feedback = existing_feedback is None
+        
         if can_leave_feedback and feedback_form is None:
             feedback_form = CourseFeedbackForm()
 
