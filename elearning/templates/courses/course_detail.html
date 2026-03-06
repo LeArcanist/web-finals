@@ -82,7 +82,7 @@
         <h4>Leave feedback</h4>
         <form method="post">
           {% csrf_token %}
-          {{ form.as_p }}
+          {{ feedback_form.as_p }}
           <button type="submit">Submit feedback</button>
         </form>
       {% endif %}
