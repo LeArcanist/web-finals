@@ -168,7 +168,6 @@ input, textarea, select {
   background: #c53030;
 }
 
-/* Make <a class="btn-link"> look like a button */
 a.btn-link {
   display: inline-block;
   background: #4fd1c5;
@@ -185,10 +184,44 @@ a.btn-link:hover {
   text-decoration: none;
 }
 
-/* Optional: align Download + Remove nicely */
 .material-right {
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: flex-end;
+}
+
+/* register form styles */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #f5f7fa;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #4fd1c5;
+  box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.2);
+}
+
+.form-error {
+  margin-top: 8px;
+  color: #f87171;
+  font-size: 14px;
 }
