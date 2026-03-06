@@ -9,10 +9,6 @@
 <p><a href="{% url 'course_chat' course.id %}">Open Course Chat</a></p>
 </div>
 
-{{ feedback_form }}
-{{ existing_feedback }}
-{{ enrollment }}
-
 <div class="card">
   <h3>Course Materials</h3>
 
@@ -82,10 +78,11 @@
           {% if existing_feedback.rating %}Rating: {{ existing_feedback.rating }}/5<br>{% endif %}
           {{ existing_feedback.comment }}
         </p>
-      {% elif form %}
+      {% elif feedback_form %}
         <h4>Leave feedback</h4>
         <form method="post">
           {% csrf_token %}
+          <input type="hidden" name="action" value="submit_feedback">
           {{ feedback_form.as_p }}
           <button type="submit">Submit feedback</button>
         </form>
