@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import sys
 
 import dj_database_url
 
@@ -163,14 +164,24 @@ MEDIA_ROOT = os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 ASGI_APPLICATION = 'elearning.asgi.application'
 
+REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ["REDIS_URL"]],
+            "hosts": [REDIS_URL],
+            #"hosts": ("127.0.0.1", 8000),
         },
     },
 }
+
+if "test" in sys.argv:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        }
+    }
 
 LOGIN_URL = "/"
 LOGIN_REDIRECT_URL = "/home/"

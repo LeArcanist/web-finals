@@ -9,6 +9,10 @@ from .models import User
 from social.forms import StatusUpdateForm
 from social.models import StatusUpdate
 
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import ProfileUpdateForm
+
 
 @login_required
 def home_router(request):
@@ -107,10 +111,40 @@ def user_directory(request):
             Q(email__icontains=q)
         ).order_by("username")
 
-    # Don’t show yourself in results
     users = users.exclude(id=request.user.id)[:100]
 
     return render(request, "accounts/user_directory.html", {
         "q": q,
         "users": users,
+    })
+
+# updating profile
+@login_required
+def profile_view(request):
+    profile_form = ProfileUpdateForm(instance=request.user)
+    password_form = PasswordChangeForm(user=request.user)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "update_profile":
+            profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+            password_form = PasswordChangeForm(user=request.user)
+
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect("profile")
+
+        elif action == "change_password":
+            profile_form = ProfileUpdateForm(instance=request.user)
+            password_form = PasswordChangeForm(user=request.user, data=request.POST)
+
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                return redirect("profile")
+
+    return render(request, "profile.html", {
+        "profile_form": profile_form,
+        "password_form": password_form,
     })

@@ -29,6 +29,8 @@ urlpatterns = [
 
     path("dm/<int:user_id>/", account_views.dm_chat, name="dm_chat"),
     path("users/", account_views.user_directory, name="user_directory"),
+
+    path("profile/", account_views.profile_view, name="profile"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

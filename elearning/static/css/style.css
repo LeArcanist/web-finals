@@ -225,3 +225,12 @@ a.btn-link:hover {
   color: #f87171;
   font-size: 14px;
 }
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 16px;
+}

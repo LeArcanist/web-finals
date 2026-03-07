@@ -51,3 +51,15 @@ class RegisterForm(UserCreationForm):
         self.fields["password1"].help_text = ""
         self.fields["password2"].help_text = ""
         self.fields["username"].help_text = ""
+        
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "real_name", "photo")
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "real_name": forms.TextInput(attrs={"class": "form-control"}),
+            "photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
+        }
