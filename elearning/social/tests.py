@@ -16,7 +16,7 @@ class SocialStatusTests(TestCase):
         self.client.login(username="s1", password="pass12345")
 
         resp = self.client.post(
-            reverse("student_home"),  # use your actual url name here
+            reverse("student_home"), 
             data={"action": "post_status", "content": "Hello world"},
         )
         self.assertIn(resp.status_code, (302, 303))

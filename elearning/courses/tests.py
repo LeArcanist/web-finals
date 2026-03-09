@@ -25,7 +25,7 @@ class CourseFlowsTests(TestCase):
     def test_student_can_enroll(self):
         self.client.login(username="s1", password="pass12345")
         resp = self.client.post(reverse("enrol_course", args=[self.course.id]))
-        self.assertIn(resp.status_code, (302, 303))  # redirect back usually
+        self.assertIn(resp.status_code, (302, 303))
 
         e = Enrollment.objects.get(course=self.course, student=self.student)
         self.assertEqual(e.status, Enrollment.Status.ENROLLED)
@@ -41,7 +41,6 @@ class CourseFlowsTests(TestCase):
         self.assertEqual(e.status, Enrollment.Status.BLOCKED)
 
     def test_only_teacher_can_upload_material(self):
-        # student attempt => forbidden
         self.client.login(username="s1", password="pass12345")
         upload = SimpleUploadedFile("test.txt", b"hello", content_type="text/plain")
         resp = self.client.post(
@@ -50,7 +49,6 @@ class CourseFlowsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 403)
 
-        # teacher attempt => ok
         self.client.login(username="t1", password="pass12345")
         upload2 = SimpleUploadedFile("test2.txt", b"hello2", content_type="text/plain")
         resp2 = self.client.post(
@@ -70,7 +68,7 @@ class CourseFlowsTests(TestCase):
             file=SimpleUploadedFile("slides.txt", b"content"),
         )
 
-        # student not enrolled: should NOT see
+        # student not enrolled: should not see
         self.client.login(username="s1", password="pass12345")
         resp = self.client.get(reverse("course_detail", args=[self.course.id]))
         self.assertNotContains(resp, "Slides")
@@ -88,14 +86,14 @@ class CourseFlowsTests(TestCase):
     def test_feedback_only_once_and_only_enrolled(self):
         self.client.login(username="s1", password="pass12345")
 
-        # not enrolled => forbidden
+        # not enrolled = forbidden
         resp = self.client.post(
             reverse("course_detail", args=[self.course.id]),
             data={"action": "submit_feedback", "rating": 5, "comment": "Great"},
         )
         self.assertEqual(resp.status_code, 403)
 
-        # enrolled => ok
+        # enrolled = ok
         Enrollment.objects.create(course=self.course, student=self.student, status=Enrollment.Status.ENROLLED)
         resp2 = self.client.post(
             reverse("course_detail", args=[self.course.id]),

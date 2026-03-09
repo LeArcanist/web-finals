@@ -40,7 +40,6 @@ def course_detail(request, course_id: int):
         status=Enrollment.Status.ENROLLED
     ).exists()
 
-        # --- Teacher upload logic ---
     is_course_teacher = _is_teacher(request.user) and (course.teacher_id == request.user.id)
     material_form = None
 
@@ -54,10 +53,8 @@ def course_detail(request, course_id: int):
             else CourseMaterial.objects.none()
 )
 
-    # Lists to display
     feedback_list = CourseFeedback.objects.filter(course=course).select_related("student").order_by("-created_at")
 
-    # --- Student feedback logic ---
     existing_feedback = None
     can_leave_feedback = False
     feedback_form = None
@@ -205,7 +202,6 @@ def create_course(request):
 def teacher_course_manage(request, course_id: int):
     course = get_object_or_404(Course.objects.select_related("teacher"), pk=course_id)
 
-    # Only the teacher who owns this course can manage it
     if not _is_teacher(request.user) or course.teacher_id != request.user.id:
         return HttpResponseForbidden("Only the teacher of this course can view this page.")
 

@@ -35,7 +35,7 @@ def student_home(request):
             s.save()
             return redirect("home")
 
-    # show latest 20 of their own updates
+    # show latest 20 updates
     status_updates = StatusUpdate.objects.filter(author=request.user)[:20]
 
     return render(request, "home_student.html", {
